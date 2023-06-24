@@ -150,7 +150,14 @@ namespace MtcEast
 
                             if (mtc.Max == 5 && mtc.Min == -9)
                             {
+                                
+
+
                                 UsbDeviceFinder finder = new UsbDeviceFinder(reg.Pid, reg.Vid, reg.Rev);
+                                device = UsbDevice.OpenUsbDevice(finder);
+
+
+                                if (reg.Open(out device) && device != null) break;  // 接続に成功 → 次のステップに進む
                             }
                             else if (mtc.Max > 0 && mtc.Min < 0)
                             {
@@ -399,15 +406,15 @@ namespace MtcEast
                         if (mtc.Val0 != mtc.Val)
                         {
                             int move;
-                            if (mtc.Val == mtc.Max)
-                            {
-                                move = 30;
-                            }
-                            else if (mtc.Val == -9)
+                            if (mtc.Val == -9)
                             {
                                 move = -30;
                             }
-                            else 
+                            //else if(mtc.Val == mtc.Max)
+                            //{
+                            //    move = 30;
+                            //}
+                            else  
                             {
                                 move = mtc.Val - mtc.Val0;
                             }
