@@ -28,6 +28,7 @@ namespace MtcEast
         public const int VK_Right = 0x27;
         public const int VK_Down = 0x28;
         public const int VK_Esc = 0x1B;
+        public const int VK_SHIFT = 0x10;
 
 
 
@@ -100,7 +101,7 @@ namespace MtcEast
                 new DefSetting{ r = SC     , T1 = "U 復帰非常"  , V1 = 'U' },
                 new DefSetting{ r = SD     , T1 = "D 抑速１"    , V1 = 'D' },
                 new DefSetting{ r = SSel   , T1 = "V HUD表示"   , V1 = 'V' },
-                new DefSetting{ r = SStart  } ,
+                new DefSetting{ r = SStart , T1 = "Shift 視点切替" , V1=VK_SHIFT} ,
                 new DefSetting{ r = S上    , T1 = "K 勾配起動"  , V1 = 'K' },
                 new DefSetting{ r = S左    , T1 = "T TASK切"    , V1 = 'T' },
                 new DefSetting{ r = S右    } ,
