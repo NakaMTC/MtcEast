@@ -188,9 +188,7 @@ namespace MtcEast
                         tmp = 0;
                     }
 
-
-
-                    if (m_PrevUint32 != tmp)
+                    if (m_PrevUint32 != tmp)                    
                     {
                         uint bitA = 0x0400;
                         uint bitAA = 0x0c00;
@@ -212,6 +210,8 @@ namespace MtcEast
 
                         if (mtc.Enable)
                         {
+                            Debug.WriteLine($"0x{tmp:x}");
+
                             if (mtc.Max == 13)  // P13～Bxの場合
                             {
                                 int fr = (int)((tmp & 0xE0) >> 4);
@@ -220,6 +220,25 @@ namespace MtcEast
                                 if (fr == 8) mtc.FR = 1;
 
                                 mtc.Val = (int)(tmp & 0x1F) + mtc.Min - 1;
+                            }
+                            else if (mtc.Min == -6)  // P5～B5 (非常を含めてB6) の場合
+                            {
+                                int fr = (int)(tmp & 0x30);
+                                if (fr == 0) mtc.FR = 0;
+                                else if (fr == 16) mtc.FR = -1;
+                                if (fr == 32) mtc.FR = 1;
+                                //Debug.WriteLine($"tmp=0x{tmp:x} 0x30 0x{tmp & 0x30:x} fr={mtc.FR}");
+
+                                mtc.Val = (int)(tmp & 0x0F) + mtc.Min - 1;
+                                //Debug.WriteLine($"mtc.Val={mtc.Val}");
+
+
+                                // キハ54用にブレーキの段数を変更
+                                if (mtc.Val == 0 || mtc.Val == -1) mtc.Val = 0;          // B0～B1 → B0 運転 に変更
+                                else if (mtc.Val == -2 || mtc.Val == -3) mtc.Val = -1;   // B2～B3 → B1 重り に変更
+                                else if (mtc.Val == -4 || mtc.Val == -5) mtc.Val = -2;   // B4～B5 → B2 制動 に変更
+                                else if (mtc.Val == -6) mtc.Val = -3;                    // B6     → B3 非常 に変更
+                                Debug.WriteLine($"mtc.Val={mtc.Val}");
                             }
                             else
                             {
@@ -443,30 +462,39 @@ namespace MtcEast
                             mtc.Val0 = mtc.Val;
                         }
 
+
+                        //Debug.WriteLine($"レバーサー：{mtc.FR}");
+
                         // 前後交代をチェック
                         if (mtc.FR0 != mtc.FR)
                         {
                             Debug.WriteLine($"レバーサー：{mtc.FR0} → {mtc.FR}");
 
+                            // キハ54対応 B5 （非常を含めるとB6）の場合、↑↓（前後切替）の代わりに RF（直変切替）とする
+                            byte FR_UP = (mtc.Min == -6 ? (byte)'R' : VK_UP);
+                            byte FR_DOWN = (mtc.Min == -6 ? (byte)'F' : VK_DOWN);
+                            
+
+
                             if (mtc.FR > 0)
                             {   // OnFrChanged : 前進 ↑↑
-                                keybd_event(VK_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
                                 Thread.Sleep(10);
-                                keybd_event(VK_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
                             }
                             else if(mtc.FR < 0)
                             {   // OnFrChanged : 後退 ↓↓
-                                keybd_event(VK_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
                                 Thread.Sleep(10);
-                                keybd_event(VK_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
                             }
                             else if (mtc.FR0 > 0)
                             {   // OnFrChanged : 前進→中立 ↓
-                                keybd_event(VK_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_DOWN, 0, KEYEVENTF_KEYUPDOWN, 0);
                             }
                             else if (mtc.FR0 < 0)
                             {   // OnFrChanged : 後退→中立 ↑
-                                keybd_event(VK_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
+                                keybd_event(FR_UP, 0, KEYEVENTF_KEYUPDOWN, 0);
                             }
 
                             mtc.FR0 = mtc.FR;
