@@ -4,309 +4,423 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
-using System.Collections.Immutable;
-using static System.Windows.Forms.LinkLabel;
-using MtcEast.Properties;
-using System.Security.Policy;
+using static MtcEast.Setting;
 
 namespace MtcEast
 {
     public partial class Setting : Form
     {
-        public const int VK_非常 = -1;
 
-        public const int VK_Enter = 0x0d;
-        public const int VK_BackSpace = 0x08;
-        public const int VK_Space = 0x20;
-        public const int VK_Left = 0x25;
-        public const int VK_Up = 0x26;
-        public const int VK_Right = 0x27;
-        public const int VK_Down = 0x28;
-        public const int VK_Esc = 0x1B;
-        public const int VK_SHIFT = 0x10;
+        const string IniPath = @".\Settings.ini";
 
+        private const string DefURL = @"steam://rungameid/2111630";
 
-
-        public static int[] A = new int[3];
-        public static int[] AA = new int[3];
-        public static int[] B = new int[3];
-        public static int[] C = new int[3];
-        public static int[] D = new int[3];
-        public static int[] ATS = new int[3];
-        public static int[] Sel = new int[3];
-        public static int[] Start = new int[3];
-        public static int[] 上 = new int[3];
-        public static int[] 左 = new int[3];
-        public static int[] 右 = new int[3];
-        public static int[] 下 = new int[3];
-
-        public static int[] SA = new int[3];
-        public static int[] SAA = new int[3];
-        public static int[] SB = new int[3];
-        public static int[] SC = new int[3];
-        public static int[] SD = new int[3];
-        public static int[] SSel = new int[3];
-        public static int[] SStart = new int[3];
-        public static int[] S上 = new int[3];
-        public static int[] S左 = new int[3];
-        public static int[] S右 = new int[3];
-        public static int[] S下 = new int[3];
-
-        public const String DEFURL = @"steam://rungameid/2111630";
-
-        public static String URL = DEFURL;
-
-        private class DefSetting
+        /// <summary> デフォルトのボタン設定</summary>
+        private static Dictionary<Idx, VK操作> Def操作 = new()
         {
-            public int[]? r;
-            public String T1 = "", T2 = "", T3 = "";
-            public int V1 = 0, V2 = 0, V3 = 0;
-        }
+            {Idx.A強   , VK操作.Back_空笛          },
+            {Idx.A     , VK操作.Enter_電笛         },
+            {Idx.B     , VK操作.E_EBリセット       },
+            {Idx.C     , VK操作.W_定速             },
+            {Idx.D     , VK操作.D_抑速1            },
+            {Idx.ATS   , VK操作.SP_ATS確認         },
+            {Idx.左    , VK操作.左                 },
+            {Idx.右    , VK操作.右                 },
+            {Idx.上    , VK操作.上                 },
+            {Idx.下    , VK操作.下                 },
+            {Idx.selA  , VK操作.C_運転台表示       },
+            {Idx.selB  , VK操作.B_ブザー           },
+            {Idx.selC  , VK操作.非常               },
+            {Idx.selD  , VK操作.V_HUD表示          },
+            {Idx.selATS, VK操作.X_警報持続         },
+            {Idx.sel左 , VK操作.SHIFT_視点         },
+            {Idx.sel右 , VK操作.T_TASK             },
+            {Idx.sel上 , VK操作.I_インチング       },
+            {Idx.sel下 , VK操作.K_勾配起動         },
+            {Idx.StA   , VK操作.Y_復帰常用         },
+            {Idx.StB   , VK操作.U_復帰非常         },
+            {Idx.StC   , VK操作.WinG_GameBar       },
+            {Idx.StD   , VK操作.WinAltR_録画       },
+            {Idx.StATS , VK操作.X_警報持続         },
+            {Idx.St左  , VK操作.SHIFT_視点         },
+            {Idx.St右  , VK操作.T_TASK             },
+            {Idx.St上  , VK操作.I_インチング       },
+            {Idx.St下  , VK操作.K_勾配起動         },
+            {Idx.selST , VK操作.Esc_ポーズ         },
+        };
 
-        private static DefSetting[] m_DefSettings;
-
-        private class ComboSetting
-        {
-            public int[]? r;
-            public ComboBox? c1 = null, c2 = null, c3 = null;
-        }
-
-        private ComboSetting[]? m_ComboSetting;
-
-        static Setting()
-        {
-            m_DefSettings = new DefSetting[]
-            {
-                new DefSetting{ r = A      , T1 = "電笛 Enter"   , V1 = VK_Enter       },
-                new DefSetting{ r = AA     , T1 = "空笛 Back"    , V1 = VK_BackSpace   },
-                new DefSetting{ r = B      , T1 = "B ブザー"     , V1 = 'B'            },
-                new DefSetting{ r = C      , T1 = "非常ブレーキ" , V1 = VK_非常        },
-                new DefSetting{ r = D      , T1 = "W 定速"       , V1 = 'W'            },
-                new DefSetting{ r = ATS    , T1 = "ATS確認"      , V1 = VK_Space       , T2 = "E EBリセット" , V2 = 'E' },
-                new DefSetting{ r = Sel    , T1 = "C 運転台表示" , V1 = 'C'            },
-                new DefSetting{ r = Start  , T1 = "Esc ポーズ"   , V1 = VK_Esc         },
-                new DefSetting{ r = 上     , T1 = "↑上"         , V1 = VK_Up          },
-                new DefSetting{ r = 左     , T1 = "←左"         , V1 = VK_Left        },
-                new DefSetting{ r = 右     , T1 = "→右"         , V1 = VK_Right       },
-                new DefSetting{ r = 下     , T1 = "↓下"         , V1 = VK_Down        },
-
-                new DefSetting{ r = SA     , T1 = "X 警報持続"  , V1 = 'X' },
-                new DefSetting{ r = SAA    , T1 = "X 警報持続"  , V1 = 'X' },
-                new DefSetting{ r = SB     , T1 = "Y 復帰常用"  , V1 = 'Y' },
-                new DefSetting{ r = SC     , T1 = "U 復帰非常"  , V1 = 'U' },
-                new DefSetting{ r = SD     , T1 = "D 抑速１"    , V1 = 'D' },
-                new DefSetting{ r = SSel   , T1 = "V HUD表示"   , V1 = 'V' },
-                new DefSetting{ r = SStart , T1 = "Shift 視点切替" , V1=VK_SHIFT} ,
-                new DefSetting{ r = S上    , T1 = "K 勾配起動"  , V1 = 'K' },
-                new DefSetting{ r = S左    , T1 = "T TASK切"    , V1 = 'T' },
-                new DefSetting{ r = S右    } ,
-                new DefSetting{ r = S下    , T1 = "I インチング", V1 = 'I' },
-            };
-
-            InitSetting();
-            ReadUserSetting();
-        }
-
-
+        /// <summary> コンストラクタ、コンボボックス一覧を取得する </summary>
         public Setting()
         {
             InitializeComponent();
 
-            m_ComboSetting = new ComboSetting[]
-            {
-                new ComboSetting{ r = A      , c1 = cbA1      , c2 = cbA2      , c3 = cbA3     },
-                new ComboSetting{ r = AA     , c1 = cbAA1     , c2 = cbAA2     , c3 = cbAA3    },
-                new ComboSetting{ r = B      , c1 = cbB1      , c2 = cbB2      , c3 = cbB3     },
-                new ComboSetting{ r = C      , c1 = cbC1      , c2 = cbC2      , c3 = cbC3     },
-                new ComboSetting{ r = D      , c1 = cbD1      , c2 = cbD2      , c3 = cbD3     },
-                new ComboSetting{ r = ATS    , c1 = cbS1      , c2 = cbS2      , c3 = cbS3     },
-                new ComboSetting{ r = Sel    , c1 = cbSel1    , c2 = cbSel2    , c3 = cbSel3   },
-                new ComboSetting{ r = Start  , c1 = cbStart1  , c2 = cbStart2  , c3 = cbStart3 },
-                new ComboSetting{ r = 上     , c1 = cbUp1     , c2 = cbUp2     , c3 = cbUp3    },
-                new ComboSetting{ r = 左     , c1 = cbLeft1   , c2 = cbLeft2   , c3 = cbLeft3  },
-                new ComboSetting{ r = 右     , c1 = cbRight1  , c2 = cbRight2  , c3 = cbRight3 },
-                new ComboSetting{ r = 下     , c1 = cbDown1   , c2 = cbDown2   , c3 = cbDown3  },
+            // コンボボックス一覧を取得する
+            m_CbList = new ComboBox[(int)Idx.selST + 1];
+            m_CbList[(int)Idx.A強] = cbA強;
+            m_CbList[(int)Idx.A] = cbA;
+            m_CbList[(int)Idx.B] = cbB;
+            m_CbList[(int)Idx.C] = cbC;
+            m_CbList[(int)Idx.D] = cbD;
+            m_CbList[(int)Idx.ATS] = cbATS;
+            m_CbList[(int)Idx.左] = cb左;
+            m_CbList[(int)Idx.右] = cb右;
+            m_CbList[(int)Idx.上] = cb上;
+            m_CbList[(int)Idx.下] = cb下;
+            m_CbList[(int)Idx.selA] = cbSelA;
+            m_CbList[(int)Idx.selB] = cbSelB;
+            m_CbList[(int)Idx.selC] = cbSelC;
+            m_CbList[(int)Idx.selD] = cbSelD;
+            m_CbList[(int)Idx.selATS] = cbSelATS;
+            m_CbList[(int)Idx.sel左] = cbSel左;
+            m_CbList[(int)Idx.sel右] = cbSel右;
+            m_CbList[(int)Idx.sel上] = cbSel上;
+            m_CbList[(int)Idx.sel下] = cbSel下;
+            m_CbList[(int)Idx.StA] = cbStA;
+            m_CbList[(int)Idx.StB] = cbStB;
+            m_CbList[(int)Idx.StC] = cbStC;
+            m_CbList[(int)Idx.StD] = cbStD;
+            m_CbList[(int)Idx.StATS] = cbStATS;
+            m_CbList[(int)Idx.St左] = cbSt左;
+            m_CbList[(int)Idx.St右] = cbSt右;
+            m_CbList[(int)Idx.St上] = cbSt上;
+            m_CbList[(int)Idx.St下] = cbSt下;
+            m_CbList[(int)Idx.selST] = cbSelST;
+        }
+        private ComboBox[] m_CbList;
 
-                new ComboSetting{ r = SA     , c1 = cbSA1     , c2 = cbSA2     , c3 = cbSA3    },
-                new ComboSetting{ r = SAA    , c1 = cbSAA1    , c2 = cbSAA2    , c3 = cbSAA3   },
-                new ComboSetting{ r = SB     , c1 = cbSB1     , c2 = cbSB2     , c3 = cbSB3    },
-                new ComboSetting{ r = SC     , c1 = cbSC1     , c2 = cbSC2     , c3 = cbSC3    },
-                new ComboSetting{ r = SD     , c1 = cbSD1     , c2 = cbSD2     , c3 = cbSD3    },
-                new ComboSetting{ r = SSel   , c1 = cbSSel1   , c2 = cbSSel2   , c3 = cbSSel3  },
-                new ComboSetting{ r = SStart , c1 = cbSStart1 , c2 = cbSStart2 , c3 = cbSStart3},
-                new ComboSetting{ r = S上    , c1 = cbSUp1    , c2 = cbSUp2    , c3 = cbSUp3   },
-                new ComboSetting{ r = S左    , c1 = cbSLeft1  , c2 = cbSLeft2  , c3 = cbSLeft3 },
-                new ComboSetting{ r = S右    , c1 = cbSRight1 , c2 = cbSRight2 , c3 = cbSRight3},
-                new ComboSetting{ r = S下    , c1 = cbSDown1  , c2 = cbSDown2  , c3 = cbSDown3 },
-            };
+        /// <summary> 各ボタンのビット </summary>
+        private enum Bit
+        {
+            A   =     0x0400,
+            AA  =     0x0c00,
+            B   =     0x1000,
+            C   =     0x2000,
+            D   =     0x0200,
+            ATS =     0x0100,
+            ST  = 0x00010000,
+            Se  = 0x00020000,
+            上  = 0x00040000,
+            下  = 0x00080000,
+            左  = 0x00100000,
+            右  = 0x00200000,
         }
 
-        private void Form2_Load(object sender, EventArgs e)
+        public static string URL = DefURL;
+        private static int[] 操作リスト = new int[(int)Idx.selST + 1];
+
+
+        /// <summary> 設定の読み込み ： 呼び出し元 ＝ システム起動時 </summary>
+        public static void IniRead()
         {
-            textBoxURL.Text = URL;
-
-
-            List<object> list = new List<object>();
-            list.Add(new { T = "", V = 0 });
-
-            foreach (var item in m_DefSettings)
+            // 初期化の設定の読み込み
+            URL = DefURL;
+            foreach (var item in Def操作)
             {
-                if (item.T1 != "" && item.V1 != 0) list.Add(new { T = item.T1, V = item.V1 });
-                if (item.T2 != "" && item.V2 != 0) list.Add(new { T = item.T2, V = item.V2 });
-                if (item.T3 != "" && item.V3 != 0) list.Add(new { T = item.T3, V = item.V3 });
+                操作リスト[(int)item.Key] = (int)item.Value;
             }
-            list = list.Distinct().ToList();
 
-            if(m_ComboSetting != null)
-            {
-                foreach (var item in m_ComboSetting)
-                {
-                    if (item.c1 != null)
-                    {
-                        List<object> tmp = new List<object>();
-                        tmp.AddRange(list);
-
-                        item.c1.DisplayMember = "T";
-                        item.c1.ValueMember = "V";
-                        item.c1.DataSource = tmp;
-                        if (item.r != null) item.c1.SelectedValue = item.r[0];
-                    }
-
-                    if (item.c2 != null)
-                    {
-                        List<object> tmp = new List<object>();
-                        tmp.AddRange(list);
-
-                        item.c2.DisplayMember = "T";
-                        item.c2.ValueMember = "V";
-                        item.c2.DataSource = tmp;
-                        if (item.r != null) item.c2.SelectedValue = item.r[1];
-                    }
-
-                    if (item.c3 != null)
-                    {
-                        List<object> tmp = new List<object>();
-                        tmp.AddRange(list);
-
-                        item.c3.DisplayMember = "T";
-                        item.c3.ValueMember = "V";
-                        item.c3.DataSource = tmp;
-                        if (item.r != null) item.c3.SelectedValue = item.r[2];                        
-                    }
-                }
-            }           
-        }
-
-
-        private static void InitSetting()
-        {
-            foreach (var item in m_DefSettings)
-            {
-                if (item.r != null)
-                {
-                    item.r[0] = item.V1;
-                    item.r[1] = item.V2;
-                    item.r[2] = item.V3;
-                }
-            }
-        }
-
-        private static void ReadUserSetting()
-        {
+            // 初期化の設定の読み込み
             try
             {
-                string s = Settings.Default.ボタン設定.Trim();
-
-                if (m_DefSettings != null && s != "")
+                if (File.Exists(IniPath))
                 {
-                    s = s.Replace("\r\n", "\n").Replace("\r", "\n");
-                    string[] lines = s.Split('\n');
+                    string[] lines = File.ReadAllLines(IniPath);
 
-                    int i = 0;
-                    for (i = 0; (i < lines.Length) && (i < m_DefSettings.Length); i++)
+                    // 1行目 : URL
+                    if (lines.Length > 0) URL = lines[0].Trim();
+
+                    // 2行目 ： 操作リスト （int ・ カンマ区切り）
+                    if (lines.Length > 1)
                     {
-                        string[] cells = lines[i].Trim().Split(',');
-
-                        var item = m_DefSettings[i];
-
-                        if (item.r != null)
+                        string[] cells = lines[1].Trim().Split(',');
+                        for (int i = 0; i < Math.Min(cells.Length, 操作リスト.Length); i++)
                         {
-                            item.r[0] = int.Parse(cells[0]);
-                            item.r[1] = int.Parse(cells[1]);
-                            item.r[2] = int.Parse(cells[2]);
+                            if (int.TryParse(cells[i], out int n)) 操作リスト[i] = n;
                         }
                     }
+
                 }
-
-
-
-                s = Settings.Default.URL.Trim();
-                if (s != "") URL = s;
-
             }
-            catch (Exception)
-            {
-            }
+            catch { }
+        }
+
+        /// <summary> 設定の保存 </summary>
+        public static void IniSave()
+        {            
+            string[] lines = new string[2];
+            lines[0] = URL;
+            lines[1] = string.Join(",", 操作リスト);
+            if (File.Exists(IniPath)) File.Delete(IniPath);
+            File.WriteAllLines(IniPath, lines, Encoding.UTF8);
         }
 
 
-
-
-        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        /// <summary> 仮想ボタン一覧（同時押し対応・インデックス）</summary>
+        public enum Idx
         {
-            if (m_ComboSetting != null)
-            {
-                foreach (var item in m_ComboSetting)
-                {
-                    if (item.c1 != null && item.r != null) item.r[0] = (int)item.c1.SelectedValue;
-                    if (item.c2 != null && item.r != null) item.r[1] = (int)item.c2.SelectedValue;
-                    if (item.c3 != null && item.r != null) item.r[2] = (int)item.c3.SelectedValue;
-                }
-            }
-
-            string s = "";
-            foreach (var item in m_DefSettings)
-            {
-                if(item.r != null)
-                {
-                    s += $"{item.r[0]},{item.r[1]},{item.r[2]}\n";
-                }
-                else
-                {
-                    s += $"0,0,0\n";
-                }
-
-
-                URL = textBoxURL.Text.Trim();
-
-                Settings.Default.URL = URL;
-                Settings.Default.ボタン設定 = s;
-                Settings.Default.Save();
-            }
-
+            A強 = 0,
+            A = 1,
+            B = 2,
+            C = 3,
+            D = 4,
+            ATS = 5,
+            左 = 6,
+            右 = 7,
+            上 = 8,
+            下 = 9,
+            selA = 10,
+            selB = 11,
+            selC = 12,
+            selD = 13,
+            selATS = 14,
+            sel左 = 15,
+            sel右 = 16,
+            sel上 = 17,
+            sel下 = 18,
+            StA = 19,
+            StB = 20,
+            StC = 21,
+            StD = 22,
+            StATS = 23,
+            St左 = 24,
+            St右 = 25,
+            St上 = 26,
+            St下 = 27,
+            selST = 28,
         }
+
+        /// <summary> 仮想キー コード </summary>
+        internal enum VK
+        {
+            Enter = 0x0d,
+            BackSpace = 0x08,
+            Space = 0x20,
+            左 = 0x25,
+            上 = 0x26,
+            右 = 0x27,
+            下 = 0x28,
+            Esc = 0x1B,
+            SHIFT = 0x10,
+            Win = 0x5b,
+            Alt = 0xA4,
+        }
+        internal enum VK特殊
+        {
+            非常 = -1,
+            WinAltR_録画 = -2,
+            WinG_GameBar = -3,
+        }
+        public enum VK操作
+        {
+            Back_空笛 = VK.BackSpace,
+            Enter_電笛 = VK.Enter,
+            E_EBリセット = 'E',
+            W_定速 = 'W',
+            D_抑速1 = 'D',
+            SP_ATS確認 = VK.Space,
+            左 = VK.左,
+            上 = VK.上,
+            右 = VK.右,
+            下 = VK.下,
+            B_ブザー = 'B',
+            非常 = VK特殊.非常,
+            C_運転台表示 = 'C',
+            V_HUD表示 = 'V',
+            X_警報持続 = 'X',
+            T_TASK = 'T',
+            I_インチング = 'I',
+            K_勾配起動 = 'K',
+            Esc_ポーズ = VK.Esc,
+            Y_復帰常用 = 'Y',
+            U_復帰非常 = 'U',
+            SHIFT_視点 = VK.SHIFT,
+            WinAltR_録画 = VK特殊.WinAltR_録画,
+            WinG_GameBar = VK特殊.WinG_GameBar,
+        }
+
+        public class C_選択肢
+        {
+            public int val { get; set; }
+            public string txt { get; set; }
+
+            public C_選択肢(int val, string txt)
+            {
+                this.val = val;
+                this.txt = txt;
+            }
+        }
+
+
+
+        private void Setting_Load(object sender, EventArgs e)
+        {
+            // コンボボックスの選択肢の設定（URL用）
+            cbSelURL.Items.Add(DefURL);
+            cbSelURL.Text = URL;
+
+            // コンボボックスの選択肢の設定（VK操作用）            
+            List<C_選択肢> 選択肢 = new();
+            選択肢.Add(new (0, ""));
+            foreach (VK操作 vk操作 in Enum.GetValues(typeof(VK操作)))
+            {
+                選択肢.Add(new((int)vk操作, vk操作.ToString()));
+            }
+
+
+            // コンボボックス用のDataを作成
+
+
+            for (int i = 0; i < m_CbList.Length; i++)
+            {
+                m_CbList[i].DisplayMember = "txt";
+                m_CbList[i].ValueMember = "val";
+                m_CbList[i].DataSource = 選択肢.ToArray();
+                m_CbList[i].SelectedValue = 操作リスト[i];
+            }
+        }
+
 
         private void buttonInit_Click(object sender, EventArgs e)
         {
-            textBoxURL.Text = URL = DEFURL;
-            InitSetting();
-
-
-            if (m_ComboSetting != null)
+            foreach (var item in Def操作)
             {
-                foreach (var item in m_ComboSetting)
-                {
-                    if (item.c1 != null && item.r != null) item.c1.SelectedValue = item.r[0];
-                    if (item.c2 != null && item.r != null) item.c2.SelectedValue = item.r[1];
-                    if (item.c3 != null && item.r != null) item.c3.SelectedValue = item.r[2];
-
-                }
+                ComboBox cb = m_CbList[(int)item.Key];
+                cb.SelectedValue = (int)item.Value;
             }
         }
+
+
+        private void buttonCancel_Click(object sender, EventArgs e) => this.Close();
+
+        private void buttonOK_Click(object sender, EventArgs e)
+        {
+            foreach (var item in Def操作)
+            {
+                ComboBox cb = m_CbList[(int)item.Key];
+                操作リスト[(int)item.Key] = cb.SelectedValue as int? ?? 0;
+            }
+            URL = cbSelURL.Text;
+            IniSave();
+            Close();
+        }
+
+
+        enum eModeStSel
+        {
+            sel, St, selSt, none, enable, disable
+        }
+
+
+        private static eModeStSel m_ModeStSel = 0;
+
+
+        public static void GetKyes(uint val32, List<int> Keys1, List<int> Funcs)
+        {
+            bool mtcA   = CheckBit(val32, (uint)Bit.A   );
+            bool mtcAA  = CheckBit(val32, (uint)Bit.AA  );
+            bool mtcB   = CheckBit(val32, (uint)Bit.B   );
+            bool mtcC   = CheckBit(val32, (uint)Bit.C   );
+            bool mtcD   = CheckBit(val32, (uint)Bit.D   );
+            bool mtcATS = CheckBit(val32, (uint)Bit.ATS );
+            bool mtc上  = CheckBit(val32, (uint)Bit.上  );
+            bool mtc下  = CheckBit(val32, (uint)Bit.下  );
+            bool mtc左  = CheckBit(val32, (uint)Bit.左  );
+            bool mtc右  = CheckBit(val32, (uint)Bit.右  );
+            bool mtcST = CheckBit(val32, (uint)Bit.ST);
+            bool mtcSe = CheckBit(val32, (uint)Bit.Se);
+
+
+            if (!mtcA && !mtcAA && !mtcB && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && !mtcST && !mtcSe)
+            {   // どのボタンも押されていない → 次回はどのモードも友好
+                m_ModeStSel = eModeStSel.enable;
+            }
+            else if (!mtcA && !mtcAA && !mtcB && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && mtcST && mtcSe)            
+            {   // Start + mtcSe の同時押し
+                m_ModeStSel = eModeStSel.selSt;
+            }
+            else if (mtcST && !mtcSe && (m_ModeStSel == eModeStSel.enable || m_ModeStSel == eModeStSel.St))
+            {   // Start + mtcSe の同時押し
+                m_ModeStSel = eModeStSel.St;
+            }
+            else if (!mtcST && mtcSe && (m_ModeStSel == eModeStSel.enable || m_ModeStSel == eModeStSel.sel))
+            {   // Start + mtcSe の同時押し
+                m_ModeStSel = eModeStSel.sel;
+            }
+            else if (!mtcST && !mtcSe && (m_ModeStSel == eModeStSel.enable || m_ModeStSel == eModeStSel.none))
+            {   // Start + mtcSe の同時押し
+                m_ModeStSel = eModeStSel.none;
+            }
+            else
+            {
+                m_ModeStSel = eModeStSel.disable;
+            }
+
+
+            if (m_ModeStSel==eModeStSel.selSt ) //if (mtcST && mtcSe && (m_ModeStSel==0 || m_ModeStSel==1))
+            {   // Start + Select の同時押し
+                Keys1.Add(操作リスト[(int)Idx.selST]);
+            }
+            else if (m_ModeStSel == eModeStSel.St) //if (mtcST)
+            {   // Start の同時押し
+                if (mtcA || mtcAA )    Keys1.Add(操作リスト[(int)Idx.StA   ]);
+                if (mtcB    )           Keys1.Add(操作リスト[(int)Idx.StB   ]);
+                if (mtcC    )           Keys1.Add(操作リスト[(int)Idx.StC   ]);
+                if (mtcD    )           Keys1.Add(操作リスト[(int)Idx.StD   ]);
+                if (mtcATS  )           Keys1.Add(操作リスト[(int)Idx.StATS ]);
+                if (mtc左   )           Keys1.Add(操作リスト[(int)Idx.St左  ]);
+                if (mtc右   )           Keys1.Add(操作リスト[(int)Idx.St右  ]);
+                if (mtc上   )           Keys1.Add(操作リスト[(int)Idx.St上  ]);
+                if (mtc下   )           Keys1.Add(操作リスト[(int)Idx.St下  ]);
+            }
+            else if (m_ModeStSel == eModeStSel.sel) // if (mtcSe && (m_ModeStSel == 0 || m_ModeStSel == 3))
+            {
+                if (mtcA || mtcAA )    Keys1.Add(操作リスト[(int)Idx.selA  ]);
+                if (mtcB    )           Keys1.Add(操作リスト[(int)Idx.selB  ]);
+                if (mtcC    )           Keys1.Add(操作リスト[(int)Idx.selC  ]);
+                if (mtcD    )           Keys1.Add(操作リスト[(int)Idx.selD  ]);
+                if (mtcATS  )           Keys1.Add(操作リスト[(int)Idx.selATS]);
+                if (mtc左   )           Keys1.Add(操作リスト[(int)Idx.sel左 ]);
+                if (mtc右   )           Keys1.Add(操作リスト[(int)Idx.sel右 ]);
+                if (mtc上   )           Keys1.Add(操作リスト[(int)Idx.sel上 ]);
+                if (mtc下   )           Keys1.Add(操作リスト[(int)Idx.sel下 ]);
+            }
+            else if (m_ModeStSel == eModeStSel.none) //if ( m_ModeStSel == 0 || m_ModeStSel == 4)
+            {
+                if (mtcAA   )           Keys1.Add(操作リスト[(int)Idx.A強  ]);
+                if (mtcA    )           Keys1.Add(操作リスト[(int)Idx.A    ]);
+                if (mtcB    )           Keys1.Add(操作リスト[(int)Idx.B    ]);
+                if (mtcC    )           Keys1.Add(操作リスト[(int)Idx.C    ]);
+                if (mtcD    )           Keys1.Add(操作リスト[(int)Idx.D    ]);
+                if (mtcATS  )           Keys1.Add(操作リスト[(int)Idx.ATS  ]);
+                if (mtc左   )           Keys1.Add(操作リスト[(int)Idx.左   ]);
+                if (mtc右   )           Keys1.Add(操作リスト[(int)Idx.右   ]);
+                if (mtc上   )           Keys1.Add(操作リスト[(int)Idx.上   ]);
+                if (mtc下   )           Keys1.Add(操作リスト[(int)Idx.下   ]);                
+            }
+
+            if (Keys1.Contains((int)VK特殊.非常))
+            {
+                Funcs.Add((int)VK特殊.非常);
+            }
+            if (Keys1.Contains((int)VK特殊.WinAltR_録画))
+            {
+                Keys1.Add((int)VK.Win);
+                Keys1.Add((int)VK.Alt);
+                Keys1.Add('R');
+            }
+            if (Keys1.Contains((int)VK特殊.WinG_GameBar))
+            {
+                Keys1.Add((int)VK.Win);
+                Keys1.Add('G');
+            }
+            Keys1 = Keys1.Distinct().Where(x => x > 0).ToList();
+        }
+
+        private static bool CheckBit(uint bits, uint mask) => ((bits & mask) == mask);
+
     }
 }
+

@@ -16,21 +16,6 @@ namespace MtcEast
         public int Val = 0, Val0 = 0;
         public int FR = 0, FR0 = 1;
 
-        public bool A = false, AA = false, B = false, C = false, D = false;
-        public bool ATS = false;
-        public bool Start = false, Sel = false;
-        public bool 左 = false, 上 = false, 下 = false, 右 = false;
-
-        public bool SA = false, SAA = false, SB = false, SC = false, SD = false;
-        public bool SStart = false, SSel = false;
-        public bool S左 = false, S上 = false, S下 = false, S右 = false;
-
-        public bool pendAA = false;
-        public bool pendSA = false, pendSAA = false, pendSB = false, pendSC = false, pendSD = false;
-        public bool pendSStart = false, pendSSel = false;
-        public bool pendS左 = false, pendS上 = false, pendS下 = false, pendS右 = false;
-
-
         public MtcInfo()
         {
         }
@@ -93,6 +78,7 @@ namespace MtcEast
 
             using (var f = new Setting())
             {
+                f.Icon = this.Icon;
                 f.ShowDialog();
             }
         }
@@ -196,27 +182,10 @@ namespace MtcEast
 
                         if (m_PrevUint32 != tmp)
                         {
-                            uint bitA = 0x0400;
-                            uint bitAA = 0x0c00;
-                            uint bitB = 0x1000;
-                            uint bitC = 0x2000;
-                            uint bitD = 0x0200;
-
-                            uint bitS = 0x0100;
-                            uint bitSt = 0x00010000;
-                            uint bitSe = 0x00020000;
-
-                            uint bitUp = 0x00040000;
-                            uint bitDown = 0x00080000;
-                            uint bitLeft = 0x00100000;
-                            uint bitRight = 0x00200000;
-
-
                             mtc.Enable = (tmp != 0);
 
                             if (mtc.Enable)
                             {
-                                Debug.WriteLine($"0x{tmp:x}");
 
                                 if (mtc.Max == 13)  // P13～Bxの場合
                                 {
@@ -258,152 +227,17 @@ namespace MtcEast
                             }
 
                             // 各ボタンの状態を保持                        
-                            mtc.A = CheckBit(tmp, bitA);
-                            mtc.AA = CheckBit(tmp, bitAA);
-                            mtc.B = CheckBit(tmp, bitB);
-                            mtc.C = CheckBit(tmp, bitC);
-                            mtc.D = CheckBit(tmp, bitD);
-                            mtc.ATS = CheckBit(tmp, bitS);
-                            mtc.Start = CheckBit(tmp, bitSt);
-                            mtc.Sel = CheckBit(tmp, bitSe);
-                            mtc.左 = CheckBit(tmp, bitLeft);
-                            mtc.上 = CheckBit(tmp, bitUp);
-                            mtc.下 = CheckBit(tmp, bitDown);
-                            mtc.右 = CheckBit(tmp, bitRight);
-
-                            // ATS同時のチェック
-                            mtc.SA = mtc.ATS & mtc.A;
-                            mtc.SAA = mtc.ATS & mtc.AA;
-                            mtc.SB = mtc.ATS & mtc.B;
-                            mtc.SC = mtc.ATS & mtc.C;
-                            mtc.SD = mtc.ATS & mtc.D;
-                            mtc.SStart = mtc.ATS & mtc.Start;
-                            mtc.SSel = mtc.ATS & mtc.Sel;
-                            mtc.S左 = mtc.ATS & mtc.左;
-                            mtc.S上 = mtc.ATS & mtc.上;
-                            mtc.S下 = mtc.ATS & mtc.下;
-                            mtc.S右 = mtc.ATS & mtc.右;
-
-                            // Pending
-                            if (mtc.AA || mtc.SAA) mtc.pendAA = true;
-                            //if (mtc.ATS)
-                            //{
-                            if (mtc.SA) mtc.pendSA = true;
-                            if (mtc.SAA) mtc.pendSAA = true;
-                            if (mtc.SB) mtc.pendSB = true;
-                            if (mtc.SC) mtc.pendSC = true;
-                            if (mtc.SD) mtc.pendSD = true;
-                            if (mtc.SStart) mtc.pendSStart = true;
-                            if (mtc.SSel) mtc.pendSSel = true;
-                            if (mtc.S左) mtc.pendS左 = true;
-                            if (mtc.S上) mtc.pendS上 = true;
-                            if (mtc.S下) mtc.pendS下 = true;
-                            if (mtc.S右) mtc.pendS右 = true;
-                            //}
-
-                            // Pending解除
-                            if (!mtc.A && !mtc.AA) mtc.pendAA = false;
-                            if (!mtc.ATS)
-                            {
-                                if (!mtc.A && !mtc.AA) mtc.pendSA = mtc.pendSAA = false;
-                                if (!mtc.B) mtc.pendSB = false;
-                                if (!mtc.C) mtc.pendSC = false;
-                                if (!mtc.D) mtc.pendSD = false;
-                                if (!mtc.Start) mtc.pendSStart = false;
-                                if (!mtc.Sel) mtc.pendSSel = false;
-                                if (!mtc.左) mtc.pendS左 = false;
-                                if (!mtc.上) mtc.pendS上 = false;
-                                if (!mtc.下) mtc.pendS下 = false;
-                                if (!mtc.右) mtc.pendS右 = false;
-                            }
-
-
-                            if (mtc.pendAA) mtc.A = mtc.SA = false;
-                            if (mtc.pendSA) mtc.ATS = mtc.A = mtc.AA = false;
-                            if (mtc.pendSAA) mtc.ATS = mtc.A = mtc.AA = mtc.SA = false;
-                            if (mtc.pendSB) mtc.ATS = mtc.B = false;
-                            if (mtc.pendSC) mtc.ATS = mtc.C = false;
-                            if (mtc.pendSD) mtc.ATS = mtc.D = false;
-                            if (mtc.pendSStart) mtc.ATS = mtc.Start = false;
-                            if (mtc.pendSSel) mtc.ATS = mtc.Sel = false;
-                            if (mtc.pendS左) mtc.ATS = mtc.左 = false;
-                            if (mtc.pendS右) mtc.ATS = mtc.右 = false;
-                            if (mtc.pendS上) mtc.ATS = mtc.上 = false;
-                            if (mtc.pendS下) mtc.ATS = mtc.下 = false;
-
-
 
                             // 前回の状態を保持
                             m_PrevUint32 = tmp;
 
 
-                            //Debug.WriteLine($"{m_PrevUint32}  max={mtc.Max} min={mtc.Min} Value={mtc.Val} FR={mtc.FR}");
-                            //Debug.WriteLine($"A={(mtc.A ? 1 : 0)} A2={(mtc.A2 ? 1 : 0)} B={(mtc.B ? 1 : 0)} C={(mtc.C ? 1 : 0)} D={(mtc.D ? 1 : 0)} ATS={(mtc.ATS ? 1 : 0)}");
-                            //Debug.WriteLine($"Start={(mtc.Start ? 1 : 0)} Select={(mtc.Sel ? 1 : 0)} ↑={(mtc.上 ? 1 : 0)} ↓={(mtc.下 ? 1 : 0)} ←={(mtc.左 ? 1 : 0)} →={(mtc.右 ? 1 : 0)}");
 
-
-                            // ボタンの変更をチェック
-                            this.Invoke(new Action(() =>
-                            {
-                                labelA.Visible = mtc.A;
-                                labelAA.Visible = mtc.AA;
-                                labelB.Visible = mtc.B;
-                                labelC.Visible = mtc.C;
-                                labelD.Visible = mtc.D;
-                                labelATS.Visible = mtc.ATS;
-                                labelStart.Visible = mtc.Start;
-                                labelSel.Visible = mtc.Sel;
-                                label上.Visible = mtc.上;
-                                label下.Visible = mtc.下;
-                                label右.Visible = mtc.右;
-                                label左.Visible = mtc.左;
-
-
-                                labelSA.Visible = mtc.SA;
-                                labelSAA.Visible = mtc.SAA;
-                                labelSB.Visible = mtc.SB;
-                                labelSC.Visible = mtc.SC;
-                                labelSD.Visible = mtc.SD;
-                                labelSStart.Visible = mtc.SStart;
-                                labelSSel.Visible = mtc.SSel;
-                                labelS上.Visible = mtc.S上;
-                                labelS下.Visible = mtc.S下;
-                                labelS右.Visible = mtc.S右;
-                                labelS左.Visible = mtc.S左;
-                            }));
 
                             // キー入力
                             List<int> Keys1 = new List<int>();
                             List<int> Funcs = new List<int>();
-
-                            if (mtc.A) Keys1.AddRange(Setting.A);
-                            if (mtc.AA) Keys1.AddRange(Setting.AA);
-                            if (mtc.B) Keys1.AddRange(Setting.B);
-                            if (mtc.C) Keys1.AddRange(Setting.C);
-                            if (mtc.D) Keys1.AddRange(Setting.D);
-                            if (mtc.ATS) Keys1.AddRange(Setting.ATS);
-                            if (mtc.Start) Keys1.AddRange(Setting.Start);
-                            if (mtc.Sel) Keys1.AddRange(Setting.Sel);
-                            if (mtc.上) Keys1.AddRange(Setting.上);
-                            if (mtc.下) Keys1.AddRange(Setting.下);
-                            if (mtc.右) Keys1.AddRange(Setting.右);
-                            if (mtc.左) Keys1.AddRange(Setting.左);
-
-                            if (mtc.SA) Keys1.AddRange(Setting.SA);
-                            if (mtc.SAA) Keys1.AddRange(Setting.SAA);
-                            if (mtc.SB) Keys1.AddRange(Setting.SB);
-                            if (mtc.SC) Keys1.AddRange(Setting.SC);
-                            if (mtc.SD) Keys1.AddRange(Setting.SD);
-                            if (mtc.SStart) Keys1.AddRange(Setting.SStart);
-                            if (mtc.SSel) Keys1.AddRange(Setting.SSel);
-                            if (mtc.S上) Keys1.AddRange(Setting.S上);
-                            if (mtc.S下) Keys1.AddRange(Setting.S下);
-                            if (mtc.S右) Keys1.AddRange(Setting.S右);
-                            if (mtc.S左) Keys1.AddRange(Setting.S左);
-
-                            Keys1 = Keys1.Distinct().ToList();
-                            Funcs = Keys1.Where(x => x < 0).ToList();
-                            Keys1 = Keys1.Where(x => x > 0).ToList();
+                            Setting.GetKyes(tmp, Keys1, Funcs);
 
 
                             // OFF→ONをチェック
@@ -428,7 +262,7 @@ namespace MtcEast
                             }
 
                             // ノッチの移動をチェック                        
-                            if (mtc.Val <= mtc.Min && (Funcs.Contains(Setting.VK_非常) || mtc.Val0 == -9)) mtc.Val = -9;
+                            if (mtc.Val <= mtc.Min && (Funcs.Contains((int)Setting.VK特殊.非常) || mtc.Val0 == -9)) mtc.Val = -9;
                             if (mtc.Val0 != mtc.Val)
                             {
                                 int move;
