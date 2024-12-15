@@ -1,3 +1,4 @@
 /.vs
-/MtcEast/obj
-/MtcEast/bin
+obj/
+bin/
+publish/
