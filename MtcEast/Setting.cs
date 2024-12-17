@@ -35,7 +35,7 @@ namespace MtcEast
             {Idx.selB  , VK操作.B_ブザー           },
             {Idx.selC  , VK操作.非常               },
             {Idx.selD  , VK操作.V_HUD表示          },
-            {Idx.selATS, VK操作.X_警報持続         },
+            {Idx.selATS, VK操作.H_MH電笛切替       },
             {Idx.sel左 , VK操作.SHIFT_視点         },
             {Idx.sel右 , VK操作.T_TASK             },
             {Idx.sel上 , VK操作.I_インチング       },
@@ -217,6 +217,7 @@ namespace MtcEast
         {
             Back_空笛 = VK.BackSpace,
             Enter_電笛 = VK.Enter,
+            H_MH電笛切替  = 'H',
             E_EBリセット = 'E',
             W_定速 = 'W',
             D_抑速1 = 'D',
