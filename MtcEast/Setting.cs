@@ -334,11 +334,11 @@ namespace MtcEast
             bool mtcSe = CheckBit(val32, (uint)Bit.Se);
 
 
-            if (!mtcA && !mtcAA && !mtcB && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && !mtcST && !mtcSe)
+            if (!mtcA && !mtcAA && !mtcB && !mtcC && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && !mtcST && !mtcSe)
             {   // どのボタンも押されていない → 次回はどのモードも友好
                 m_ModeStSel = eModeStSel.enable;
             }
-            else if (!mtcA && !mtcAA && !mtcB && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && mtcST && mtcSe)            
+            else if (!mtcA && !mtcAA && !mtcB && !mtcC && !mtcD && !mtcATS && !mtc上 && !mtc下 && !mtc左 && !mtc右 && mtcST && mtcSe)            
             {   // Start + mtcSe の同時押し
                 m_ModeStSel = eModeStSel.selSt;
             }
