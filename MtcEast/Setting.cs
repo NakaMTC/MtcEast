@@ -39,7 +39,7 @@ namespace MtcEast
             {Idx.sel左 , VK操作.SHIFT_視点         },
             {Idx.sel右 , VK操作.T_TASK             },
             {Idx.sel上 , VK操作.I_インチング       },
-            {Idx.sel下 , VK操作.K_勾配起動         },
+            {Idx.sel下 , VK操作.G_勾配起動         },
             {Idx.StA   , VK操作.Y_復帰常用         },
             {Idx.StB   , VK操作.U_復帰非常         },
             {Idx.StC   , VK操作.WinG_GameBar       },
@@ -48,7 +48,7 @@ namespace MtcEast
             {Idx.St左  , VK操作.SHIFT_視点         },
             {Idx.St右  , VK操作.T_TASK             },
             {Idx.St上  , VK操作.I_インチング       },
-            {Idx.St下  , VK操作.K_勾配起動         },
+            {Idx.St下  , VK操作.G_勾配起動         },
             {Idx.selST , VK操作.Esc_ポーズ         },
         };
 
@@ -233,7 +233,7 @@ namespace MtcEast
             X_警報持続 = 'X',
             T_TASK = 'T',
             I_インチング = 'I',
-            K_勾配起動 = 'K',
+            G_勾配起動 = 'G',
             Esc_ポーズ = VK.Esc,
             Y_復帰常用 = 'Y',
             U_復帰非常 = 'U',

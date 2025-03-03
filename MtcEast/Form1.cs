@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace MtcEast
 {
@@ -69,6 +70,9 @@ namespace MtcEast
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            AssemblyName assemblyName = assembly.GetName();
+            this.Text = $"{assemblyName.Name}\tver:{assemblyName.Version}";
         }
 
 
